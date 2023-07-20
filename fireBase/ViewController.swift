@@ -51,36 +51,55 @@ class ViewController: UIViewController {
         }
     }
     func signIn(){
-        Auth.auth().signIn(withEmail: tx1.text!, password: tx2.text!){ authResult, error in
-            if error == nil{
-                print("done")
-            }
-            else{
-                print(error?.localizedDescription)
-            }
-        }
-    }
-    func data(){
-//        if let user = user {
-//          let uid = user.uid
-//          let email = user.email
-//          let photoURL = user.photoURL
-//          var multiFactorString = "MultiFactor: "
-//          for info in user.multiFactor.enrolledFactors {
-//            multiFactorString += info.displayName ?? "[DispayName]"
-//            multiFactorString += " "
-//          }
+        sendOtp()
+//        Auth.auth().signIn(withEmail: tx1.text!, password: tx2.text!){ authResult, error in
+//            if error == nil{
+//                print("done")
+//            }
+//            else{
+//                print(error?.localizedDescription)
+//            }
 //        }
     }
     @IBAction func sighUp(_ sender: Any) {
         signUp()
         
     }
-    
-
     @IBAction func sighIn(_ sender: Any) {
         signIn()
     }
-    
+    func phoneNumber(){
+        
+    }
+    func sendOtp() {
+        PhoneAuthProvider.provider().verifyPhoneNumber(tx1.text!, uiDelegate: nil) { [self] verificationID, error in
+            if error == nil {
+                print("done")
+                showAlert(id:verificationID!)
+            }
+            else{
+                print(error?.localizedDescription)
+            }
+        }
+    }
+    func showAlert(id:String){
+        let a = UIAlertController(title: "OTP", message: "EnterOTP", preferredStyle: .alert)
+        a.addTextField()
+        a.addAction(UIAlertAction(title: "ok", style: .default,handler: { _ in
+            self.verifyOtp(token: id, otp: (a.textFields?.first?.text)!)
+        }))
+        present(a, animated: true)
+    }
+    func verifyOtp(token:String,otp:String){
+        let credential = PhoneAuthProvider.provider().credential(withVerificationID: token, verificationCode: otp)
+        Auth.auth().signIn(with: credential) { authDataResult, error in
+            if error == nil{
+                print("ok")
+            }
+            else{
+                print(error?.localizedDescription)
+            }
+        }
+    }
 }
 
